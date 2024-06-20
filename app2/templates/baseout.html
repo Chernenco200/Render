@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="keywords" content="tyres, automotive, mechanics">
+    <title>Lecogram</title>
+
+    <!-- Custom styles for this template -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'index/css/main.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'index/img/logo.png' %}">
+    <link rel="stylesheet" href="{% static 'index/css/bootstrap.min.css' %}">
+    <script type="text/javascript" charset="utf8" src="{% static 'index/js/sweet.js' %}"></script>
+</head>
+
+<body>
+    <script src="{% static 'index/js/jquery.js' %}"></script>
+    <div class="container">
+        {% block content %}
+
+        {% endblock %}
+        <!-- Footer -->
+        <footer class="page-footer">
+            <!-- Copyright -->
+            <div class="footer-copyright text-center">
+                <!-- Social buttons -->
+                <p>© 2022 Copyright Lecogram</p>
+            </div>
+            <!-- Copyright -->
+        </footer>
+        <!-- Footer -->
+    </div>
+
+</body>
+
+</html>

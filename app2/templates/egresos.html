@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+
+<div id="MaterialesModal" class="modal bd-example-modal-lg" style="overflow: scroll;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h3 class="modal-title text-dark">Materiales</h3>
+            </div>
+            <div class="modal-body" style="overflow:scroll; max-height: 450px;">
+                <table class="table table-secondary" id="tableProducts">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Código interno</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Precio $</th>
+                            <th>Subtotal $</th>
+                            <th>¿Entregado?</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-dark">
+                    </tbody>
+                </table>
+            </div>
+            <div class="mb-2 text-center">
+                <button onclick="saveMat()" class="btn btn-success btn-lg">Guardar cambios <i
+                        class="fas fa-share-square"></i></button>
+            </div>
+            <div class="modal-footer bg-dark">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">
+                    Cerrar
+                    <i class="fas fa-window-close"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="EliminarOrdenModal" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title text-dark">Eliminar Orden</h5>
+            </div>
+            <div class="modal-body bg-dark text-white">
+                <p class="labelmodal">¿Estás seguro?</p>
+                <form method="POST" action="">{% csrf_token %}
+                    <input type="hidden" id="id_correctivo_eliminar" name="id_correctivo_eliminar">
+            </div>
+            <div class="modal-footer bg-dark text-white">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">
+                    Volver
+                </button>
+                <button type="submit" class="btn btn-success">
+                    Aceptar
+                </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 text-center">
+        <h3 class="text-center">Ventas <i class="nav-icon far fa-calendar-alt text-danger"></i></h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-9">
+        <a class="btn btn-success ml-2 mb-5 border border-dark" href="{% url 'Venta' %}">
+            Agregar nueva venta <i class="fas fa-plus-circle"></i>
+        </a>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'index/css/b4.css' %}">
+<script src="{% static 'index/js/b4.js' %}"></script>
+<div class="col-md-12" style="overflow:scroll">
+    <table class="table table-hover table-primary" id="myTable">
+        <thead>
+            <tr>
+                <th># Venta</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Total {{moneda}}  </th>
+                <th>Pagado {{moneda}} </th>
+                <th>Comentarios</th>
+                <th>Opciones</th>
+                <th style="display: none;">Fecha Formato</th>
+            </tr>
+        </thead>
+        <tbody class="text-dark">
+            {% for i in egresos %}
+            <tr>
+                <td>{{i.id}}</td>
+                <td>{{i.fecha_pedido}}</td>
+                <td>{{i.cliente}}</td>
+                <td>{{moneda}} {{i.total}}</td>
+                <td> 
+                    {% if i.total > i.pagado %}
+                    <button class="btn btn-dark-outline btn-sm" title="Ir a créditos">
+                        <a style="color:rgb(236, 55, 19)" href="{% url 'Creditos' %}" rel="noopener noreferrer">
+                            {{moneda}} {{i.pagado}}
+                            <img src="{% static 'index/img/credito.png' %}" alt="Error" width="30">
+                        </a>
+                    </button>
+                    {% else %}
+                    {{moneda}} {{i.pagado}}
+                    {% endif %}
+                </td>
+                <td>{{i.comentarios}}</td>
+                <td>
+                    {% if i.ticket %}
+                    <button class="btn btn-dark-outline btn-sm" title="Ver PDF">
+                        <a href="{% url 'ExportPDF' %}{{i.id}}/{{i.desglosar}}" target="_blank" rel="noopener noreferrer">
+                            <img src="{% static 'index/img/pdf.png' %}" alt="Error" width="30">
+                        </a>
+                    </button>
+                    {% else %}
+                    <button class="btn btn-dark-outline btn-sm" title="Ver PDF">
+                        <a href="{% url 'ExportPDFCarta' %}{{i.id}}/{{i.desglosar}}" target="_blank" rel="noopener noreferrer">
+                            <img src="{% static 'index/img/pdf.png' %}" alt="Error" width="30">
+                        </a>
+                    </button>
+                    {% endif %}
+                    <button onclick="consultData('{{i.id}}')" class="btn btn-dark-outline btn-sm"
+                        title="Consultar Materiales">
+                        <a href="#MaterialesModal" data-toggle="modal" data-dismiss="modal"> <img
+                                src="{% static 'index/img/entradas.png' %}" alt="Error" width="30"></i></a>
+                    </button>
+                    <button onclick="eliminarCorrectivo('{{i.id}}')" class="btn btn-dark-outline btn-sm"
+                        data-toggle="modal" href="#EliminarOrdenModal" title="Eliminar"><img
+                            src="{% static 'index/img/delete.png' %}" alt="Error" width="30"></button>
+                </td>
+                <th style="display: none;" id="{{i.id}}-fecha">{{ i.fecha_cierre|date:"Y-m-d" }}</th>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% if messages %}
+{% for message in messages %}
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Error...',
+        text: "{{message}}",
+        footer: "Revise sus datos e intente de nuevo por favor"
+    })
+</script>
+{% endfor %}
+{% endif %}
+
+<script>
+    var verts = {
+        items: {
+            products: []
+        },
+        list: function () {
+            tableProducts = $('#tableProducts').DataTable({
+                data: this.items.products,
+                columns: [
+                    { "data": "id" },
+                    { "data": "codigo" },
+                    { "data": "descripcion" },
+                    { "data": "cantidad" },
+                    { "data": "precio" },
+                    { "data": "total" },
+                    { "data": "entregado" },
+                ],
+                columnDefs: [
+
+                    {
+                        targets: [4],
+                        class: "text-center",
+                        render: function (data, type, row) {
+                            return "$" + parseFloat(data).toFixed(2)
+                        }
+                    },
+                    {
+                        targets: [5],
+                        class: "text-center",
+                        render: function (data, type, row) {
+                            return "$" + parseFloat(data).toFixed(2)
+                        }
+                    },
+                    {
+                        targets: [6],
+                        class: "text-center",
+                        render: function (data, type, row, meta) {
+                            if (data == true) {
+                                var buttons = `<input onchange="update(${meta.row})" type="checkbox" name="entregado" class="form-control text-center" checked >`;
+                                return buttons
+                            }
+                            else {
+                                var buttons = `<input onchange="update(${meta.row})" type="checkbox" name="entregado" class="form-control text-center" >`;
+                                return buttons
+
+                            }
+
+                        }
+                    },
+                ],
+                destroy: true,
+                "language": {
+                    "url": "{% static 'index/js/idiom.json' %}"
+                },
+                "lengthMenu": [[10, 25, 50], [10, 25, 50]],
+                rowCallback(row, data, displayNum, displayIndex, dataIndex) {
+                    //console.log(data);
+
+                },
+            });
+        },
+
+    };
+
+    function consultData(id) {
+        $.ajax({
+            url: "",
+            type: 'POST',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                'id': id
+            },
+            dataType: 'json',
+        }).done(function (data) {
+            console.clear();
+            verts.items.products = data["productos"];
+            console.log(verts.items.products);
+            verts.list();
+            console.log('realizado');
+            //verts.items.products.push(producto);
+        }).fail(
+            function (jqXHR, textStatus, errorThrown) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: textStatus,
+                    footer: errorThrown
+                })
+            }).always(
+                function (data) {
+                });
+    }
+    function saveMat() {
+        productos = [];
+        var table = $('#tableProducts').DataTable();
+        table.rows().every(function (rowIdx, tableLoop, rowLoop) {
+            var data = this.data();
+            // ... do something with data(), or this.node(), etc
+            productos.push(data);
+        });
+        console.clear();
+        $.ajax({
+            url: "",
+            type: 'POST',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                'productos': JSON.stringify(productos),
+            },
+            dataType: 'json',
+        }).done(function (data) {
+            console.clear();
+            Swal.fire({
+                    icon: 'success',
+                    title: 'Confirmación',
+                    text: "Actualizado con éxito",
+                })
+        }).fail(
+            function (jqXHR, textStatus, errorThrown) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: textStatus,
+                    footer: errorThrown
+                })
+            }).always(
+                function (data) {
+                });
+    }
+    function update(position) {
+        position = parseInt(position);
+        var table = $('#tableProducts').DataTable();
+        console.clear();
+
+        if (table.row(position).data().entregado == true) {
+            table.row(position).data().entregado = false;
+            console.log(table.row(position).data().entregado)
+        }
+        else if (table.row(position).data().entregado == false) {
+            table.row(position).data().entregado = true;
+            console.log(table.row(position).data().entregado)
+        }
+    }
+
+</script>
+{% endblock %}

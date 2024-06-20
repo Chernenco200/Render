@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'index/css/b4.css' %}">
+<script src="{% static 'index/js/b4.js' %}"></script>
+
+
+<div id="AgregarProductoModal" class="modal" style="overflow: scroll;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title text-dark">Agregar nuevo producto</h5>
+            </div>
+            <div class="modal-body bg-dark text-white">
+                <form method="POST" action="{% url 'AddProduct' %}" enctype="multipart/form-data">{% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-3">
+                            {{form_producto.barcode.label}}
+                            {{form_producto.barcode|add_class:"form-control font-weight-normal text-dark"}}
+                        </div>
+                        <div class="col-md-3">
+                            {{form_producto.codigo.label}}
+                            {{form_producto.codigo|add_class:"form-control font-weight-normal text-dark"}}
+                        </div>
+                        <div class="col-md-6">
+                            {{form_producto.descripcion.label}}
+                            {{form_producto.descripcion|add_class:"form-control font-weight-normal text-dark"}}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            {{form_producto.imagen.label}}
+                            {{form_producto.imagen|add_class:"form-control font-weight-normal text-dark"}}
+                        </div>
+                        <div class="col-md-4">
+                            {{form_producto.unidad.label}}
+                            {{form_producto.unidad|add_class:"form-control font-weight-normal text-dark"}}
+                        </div>
+                        <div class="col-md-4">
+                            {{form_producto.costo.label}}{{moneda}}
+                            {{form_producto.costo|add_class:"form-control font-weight-normal text-dark"}}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            {{form_producto.iva.label}}
+                            {{form_producto.iva|add_class:"form-control font-weight-normal text-dark"}}
+                        </div>
+                        <div class="col-md-8">
+                            {{form_producto.porcion.label}}
+                            {{form_producto.porcion|add_class:"form-control font-weight-normal text-dark"}}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{form_producto.precio.label}}{{moneda}}
+                            {{form_producto.precio|add_class:"form-control font-weight-normal text-dark"}}
+                        </div>
+                        <div class="col-md-6">
+                            {{form_producto.unidad_venta.label}}
+                            {{form_producto.unidad_venta|add_class:"form-control font-weight-normal text-dark"}}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{form_producto.cantidad.label}}
+                            {{form_producto.cantidad|add_class:"form-control font-weight-normal text-dark"}}
+                        </div>
+                        <div class="col-md-6">
+                            {{form_producto.servicio.label}}
+                            {{form_producto.servicio|add_class:"form-control font-weight-normal text-dark"}}
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer bg-dark">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-success">
+                    Agregar
+                </button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="EditarProductoModal" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title text-dark">Editar producto</h5>
+            </div>
+            <div class="modal-body bg-dark text-white">
+                <form method="POST" action="{% url 'EditProduct' %}" enctype="multipart/form-data">{% csrf_token %}
+                    <input type="hidden" id="id_producto_editar" name="id_producto_editar">
+                    {% for field in form_editar_producto %}
+                    <p> {{field.label}} <br>
+                        {{field|add_class:"form-control"}}</p>
+                    {% for error in field.errors %}
+                    <p class="alarma">{{error}}</p>
+                    {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                    <p class="alarma">{{error}}</p>
+                    {% endfor %}
+            </div>
+            <div class="modal-footer bg-dark text-white">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">
+                   Volver
+                </button>
+                <button type="submit" class="btn btn-success">
+                    Aceptar
+                </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="AjustarProductoModal" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title text-dark">Ajustar inventario</h5>
+            </div>
+            <div class="modal-body bg-dark text-white">
+                <form method="POST" action="{% url 'AjusteProduct' %}" enctype="multipart/form-data">{% csrf_token %}
+                    <input type="hidden" id="id_producto_ajustar" name="id_producto_ajustar">
+                    <div>Cantidad anterior: </div>
+                    <input type="number" id="cantidadanterior" name="cantidadanterior" class="form-control" readonly>
+                    {% for field in form_ajustar_producto %}
+                    <p> {{field.label}} <br>
+                        {{field|add_class:"form-control"}}</p>
+                    {% for error in field.errors %}
+                    <p class="alarma">{{error}}</p>
+                    {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                    <p class="alarma">{{error}}</p>
+                    {% endfor %}
+            </div>
+            <div class="modal-footer bg-dark text-white">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">
+                   Volver
+                </button>
+                <button type="submit" class="btn btn-success">
+                    Aceptar
+                </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="EliminarProductoModal" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title text-dark">Eliminar Producto</h5>
+            </div>
+            <div class="modal-body bg-dark text-white">
+                <p class="labelmodal">¿Estás seguro?</p>
+                <form method="POST" action="{% url 'DeleteProduct' %}">{% csrf_token %}
+                    <input type="hidden" id="id_producto_eliminar" name="id_producto_eliminar">
+            </div>
+            <div class="modal-footer bg-dark text-white">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">
+                   Volver
+                </button>
+                <button type="submit" class="btn btn-success">
+                    Aceptar
+                </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h3 class="text-center">Inventario <i class=" text-secondary nav-icon fas fa-boxes"></i></h3>
+        <div class="col-md-3 pb-2">
+            <a href="#AgregarProductoModal"
+                data-toggle="modal" data-dismiss="modal">
+                <button type="button" class="btn btn-success">
+                    Agregar Producto
+                    <i class="fas fa-plus-circle"></i>
+                </button>
+            </a>
+        </div>
+        <div class="card card-body" style="overflow:scroll; max-height: 400px;">
+            <table class="table table-hover table-primary" id="myTable">
+                <thead>
+                    <tr>
+                        <th>Código interno</th>
+                        <th>Descripción</th>
+                        <th>Costo</th>
+                        <th>Precio unit.</th>
+                        <th>Cantidad</th>
+                        <th>Imagen</th>
+                        <th>Opciones</th>
+                    </tr>
+                </thead>
+                <tbody class="text-dark">
+                    {% for i in productos %}
+                    <tr>
+                        <td>{{i.codigo}}</td>
+                        <td>{{i.descripcion}}</td>
+                        <td>{{moneda}} {{i.costo}} / {{i.unidad}}</td>
+                        <td>{{moneda}} {{i.precio}} / {{i.unidad_venta}}</td>
+                        <td>{{i.cantidad}} / {{i.unidad}}</td>
+                        {% if i.imagen %}
+                        <td><img width="100" src="{{i.imagen.url}}" alt="producto-{{i.id}}"></td>
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+                        <td>
+                            <button onclick="ajusteProduct('{{i.id}}','{{i.cantidad}}')" class="btn btn-dark-outline btn-sm" data-toggle="modal"
+                                href="#AjustarProductoModal"><img src="{% static 'index/img/inventory.png' %}" alt="Error"
+                                    width="30"></button>
+                            <button onclick="editarProductAlmacen('{{i.id}}', '{{i.codigo}}', '{{i.descripcion}}',
+                        '{{i.costo}}', '{{i.iva}}','{{i.precio}}','{{i.porcion}}','{{i.unidad}}','{{i.servicio}}','{{i.barcode}}','{{i.unidad_venta}}')" class="btn btn-dark-outline btn-sm" data-toggle="modal"
+                                href="#EditarProductoModal"><img src="{% static 'index/img/editar.png' %}" alt="Error"
+                                    width="30"></button>
+                            <button onclick="eliminarProducto('{{i.id}}')" class="btn btn-dark-outline btn-sm"
+                                data-toggle="modal" href="#EliminarProductoModal"><img
+                                    src="{% static 'index/img/delete.png' %}" alt="Error" width="30"></button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% if messages %}
+    {% for message in messages %}
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error...',
+                text: "{{message}}",
+                footer: "Revise sus datos e intente de nuevo por favor"
+            })
+        </script>
+    {% endfor %}
+{% endif %}
+
+{% endblock %}

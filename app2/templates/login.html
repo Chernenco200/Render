@@ -1,0 +1,35 @@
+{% extends "baseout.html" %}
+
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="abs-center login-page">
+    <div class="col-md-6 marca">
+        <img src="{% static  'app2/img/logo.png' %}" width="200" alt="Error Logo">
+        <h1>Lecogram Ventas</h1>
+        <h3> <i>Hacer las cosas, diferente...</i></h3>
+    </div>
+    <div class="col-md-6 text-center">
+        <img src="{% static  'app2/img/maintenance.png' %}" width="100" alt="Maintenance">
+        <form method="POST">{% csrf_token %}
+            {% for field in form %}
+            <p>{{field.label}}</p>
+            <p>{{field|add_class:"form-control"}}</p>
+            {% endfor %}
+            <br>
+            <button class="btn btn-success btn-block" type="submit">Iniciar sesión</button>
+        </form>
+    </div>
+</div>
+{% for error in form.non_field_errors %}
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: "{{error}}",
+        footer: "Revise sus datos e intente de nuevo por favor"
+    })
+</script>
+{% endfor %}
+{% endblock %}
