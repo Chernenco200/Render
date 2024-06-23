@@ -8,7 +8,7 @@ urlpatterns = [
     path('productos/', views.inventario_view, name='Product'),
     path('ventas/',views.ventas.as_view(), name='Venta'),
     path('add_venta/', views.save_venta_view, name='AddVenta'),
-    path('export/', views.export_pdf_view, name="ExportPDF" ),
+    #path('export/', views.export_pdf_view, name="ExportPDF" ),
 
 
 
